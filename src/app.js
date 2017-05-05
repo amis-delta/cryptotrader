@@ -18,10 +18,10 @@ var marketData = new MarketData();
 
 clients = {}
 
+Object.keys(userlist).forEach( (u) => {
+  users[u] = new User(userlist[u], marketData)
+});
 
-
-users['jack'] = new User(userlist['jack'], marketData);
-users['will'] = new User(userlist['will'], marketData);
 
 setInterval( () => {
   Object.keys(clients).forEach( (c) => {

@@ -21,7 +21,7 @@ class User {
     });
 
     this.account.on('order', (order) => {
-      console.log(order);
+      
     })
 
 
