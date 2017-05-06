@@ -37,15 +37,15 @@ class receiver(threading.Thread):
         for coin, val in self.msg['balances'].iteritems():
             try:
                 balance = (float(val['onOrders']) + float(val['available']))
-                if coin == 'USDT':
-                    last = (float(self.msg['marketData']['USDT_BTC']['lowestAsk']) + float(self.msg['marketData']['USDT_BTC']['highestBid'])) / 2
-                    self.pos.ix[coin] = [balance, (balance / last) * fee, last]
-                elif coin == 'BTC':
-                    self.pos.ix[coin] = [balance, (balance) * fee, 0]
-                else:
-                    last = (float(self.msg['marketData']['BTC_' + coin]['lowestAsk']) + float(self.msg['marketData']['BTC_' + coin]['highestBid'])) / 2
-                    self.pos.ix[coin] = [balance, (balance * last) * fee, last]
-
+                if (balance != 0):
+                    if coin == 'USDT':
+                        last = (float(self.msg['marketData']['USDT_BTC']['lowestAsk']) + float(self.msg['marketData']['USDT_BTC']['highestBid'])) / 2
+                        self.pos.ix[coin] = [balance, (balance / last) * fee, last]
+                    elif coin == 'BTC':
+                        self.pos.ix[coin] = [balance, (balance) * fee, 0]
+                    else:
+                        last = (float(self.msg['marketData']['BTC_' + coin]['lowestAsk']) + float(self.msg['marketData']['BTC_' + coin]['highestBid'])) / 2
+                        self.pos.ix[coin] = [balance, (balance * last) * fee, last]
             except:
                 pass
 
@@ -60,3 +60,7 @@ class receiver(threading.Thread):
     def on_open(self, ws):
         self.ws.send(self.user)
         print "connection opened"
+
+
+r = receiver('ws://205.178.62.72:8888', 'jack')
+r.start()

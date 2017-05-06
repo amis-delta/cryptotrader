@@ -4,19 +4,35 @@ const symbols = require('../data/symbols');
 
 var userlist = require('../data/users');
 
+var server = require('http').createServer();
+var express = require('express');
+var app = express();
+var url = require('url');
+
+var port = 8888;
+
+
+
+app.use(express.static('../dist'));
+server.on('request', app);
+server.on('error', function(err) {
+  console.log(err);
+});
+server.listen(port, function () {
+  console.log('Listening on http://localhost:' + port);
+});
 
 const WebSocket = require('ws');
 const wss = new WebSocket.Server({
   perMessageDeflate: false,
-  port: 8888
+  server: server
 });
-
 
 
 var users = {};
 var marketData = new MarketData();
 
-clients = {}
+var clients = {}
 
 Object.keys(userlist).forEach( (u) => {
   users[u] = new User(userlist[u], marketData)
@@ -30,7 +46,6 @@ setInterval( () => {
     }
   });
 
-  // wss.broadcast(JSON.stringify(formatUserData('jack')));
 }, 500)
 
 
