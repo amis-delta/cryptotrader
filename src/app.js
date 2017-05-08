@@ -140,9 +140,8 @@ setInterval( () => {
     history.shift();
   }
   history.push(row);
-  console.log('---------------------History-------------------');
-  console.log(history);
-  console.log();
+  console.log('History added.. rows:', history.length);
+
 }, 60000);
 
 

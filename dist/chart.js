@@ -31,7 +31,7 @@ ws.onopen = () => {
 
 ws.onmessage = (data) => {
   let msg = JSON.parse(data.data);
-
+  console.log(msg);
   if (msg.msgType == 'user_update') {
     parseChartDatum(msg);
   }
