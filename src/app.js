@@ -9,7 +9,6 @@ var userlist = require('../data/users');
 var server = require('http').createServer();
 var express = require('express');
 var app = express();
-var expressWs = require('express-ws')(app);
 var url = require('url');
 var path = require('path');
 
