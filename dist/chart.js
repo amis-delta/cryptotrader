@@ -1,7 +1,7 @@
 var series = [];
 
 var host = '205.178.62.72';
-host = 'localhost';
+// host = 'localhost';
 
 var user = document.URL.split('/').pop();
 
