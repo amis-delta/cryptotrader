@@ -1,6 +1,10 @@
 var series = [];
 
 var host = '205.178.62.72';
+host = 'localhost';
+
+var user = document.URL.split('/').pop();
+
 var ws = new WebSocket('ws://' + host + ':8888');
 
 var bals = {};
@@ -8,13 +12,53 @@ var keys = [];
 var total = {};
 var rate = 0
 
+var chartLow = 0
+var chartHigh = .003;
+
+if (user=='will') { chartLow = .03; chartHigh = .05;}
+
 ws.onopen = () => {
-  ws.send('jack')
+  ws.send(JSON.stringify({
+    user: user,
+    request: 'initialize'
+  }));
+
+  ws.send(JSON.stringify({
+    user: user,
+    request: 'history'
+  }));
 }
 
-ws.onmessage = (msg) => {
-  let data = JSON.parse(msg.data)
-  let bs = data.balances
+ws.onmessage = (data) => {
+  let msg = JSON.parse(data.data);
+
+  if (msg.msgType == 'user_update') {
+    parseChartDatum(msg);
+  }
+
+  if (msg.msgType == 'history') {
+    console.log('History=====================')
+    console.log(msg.response);
+    parseHistory(msg.response);
+  }
+
+
+}
+
+var chart = new Chartist.Line('.ct-chart', {
+  series: series
+}, {
+  low: chartLow,
+  high: chartHigh,
+  showPoint: true,
+  plugins: [
+    Chartist.plugins.tooltip()
+  ]
+});
+
+var parseChartDatum = function(row) {
+  let bs = row.balances
+
   Object.keys(bs).forEach( (b) => {
     if (bs[b]['btcValue'] > 0 && keys.indexOf(b) === -1) {
       keys.push(b);
@@ -22,35 +66,52 @@ ws.onmessage = (msg) => {
     }
   });
   total['btcs'] = 0;
+  try {
+    rate = ((parseFloat(row['marketData']['USDT_BTC']['lowestAsk']) + parseFloat(row['marketData']['USDT_BTC']['highestBid'])) / 2);
+  } catch (e) {
+    console.log('No USDT rate available');
+    rate = 0;
+  }
   keys.forEach( (k) => {
     let bal = parseFloat(bs[k]['onOrders']) + parseFloat(bs[k]['available'])
     if (k == 'USDT') {
-      rate = ((parseFloat(data['marketData']['USDT_BTC']['lowestAsk']) + parseFloat(data['marketData']['USDT_BTC']['highestBid'])) / 2);
       bals[k] = bal / rate
     } else if (k == 'BTC') {
       bals[k] = bal
     } else {
-      bals[k] = bal  * ((parseFloat(data['marketData']['BTC_' + k]['lowestAsk']) + parseFloat(data['marketData']['BTC_' + k]['highestBid'])) / 2);
+      try {
+        bals[k] = bal  * ((parseFloat(row['marketData']['BTC_' + k]['lowestAsk']) + parseFloat(row['marketData']['BTC_' + k]['highestBid'])) / 2);
+      } catch (e) {
+        console.log('No market data available for:', k);
+        bals[k] = 0;
+      }
     }
-    // console.log(k, bals[k])
     total['btcs'] += bals[k];
   });
   total['usd'] = total['btcs'] * rate
-  }
+}
 
-var chart = new Chartist.Line('.ct-chart', {
-  series: series
-}, {
-  low: 0,
-  high: .0003,
-  showPoint: true,
-  plugins: [
-    Chartist.plugins.tooltip()
-  ]
-});
+var parseHistory = function(res) {
+  keys = [];
+  /* loop through each historical point */
+  res.forEach( (row) => {
+    parseChartDatum(row);
+    /* loop through each coin in one point */
+    keys.forEach( (k, i) => {
+      if (series[i].length >= maxPoints) {
+        series[i].shift();
+      }
+      series[i].push({
+        meta: k,
+        value: bals[k]
+      });
+    });
+  });
+}
+
 
 var count = 0;
-var maxPoints = 60 * 24;
+var maxPoints = 60 * 12;
 setInterval( () => {
   document.getElementById("total").innerHTML = "Total PL: $" + total['usd'];
   if (count >= 60) {

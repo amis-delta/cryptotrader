@@ -10,10 +10,10 @@ class MarketData extends EventEmitter {
   constructor() {
     super();
 
-    this.data = {}
+    this.marketData = {}
 
     poloPush.ticker( (err, res) => {
-      this.data[res.currencyPair] = res;
+      this.marketData[res.currencyPair] = res;
       this.emit('ticker', res);
     });
 

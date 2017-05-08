@@ -13,9 +13,11 @@ class Account extends EventEmitter {
       orders: 1483228800
     }
 
-    this.fills = {};
-    this.balances = {};
-    this.orders = {};
+    this.data = {}
+    this.data['fills'] = {};
+    this.data['balances'] = {};
+    this.data['orders'] = {};
+
 
   }
 
@@ -29,7 +31,7 @@ class Account extends EventEmitter {
         return;
       }
 
-      this.balances = res;
+      this.data.balances = res;
 
       this.emit('balances', res);
       this.lastUpdate.balances = endTime;
@@ -47,9 +49,9 @@ class Account extends EventEmitter {
         }
 
 
-        if (!_.isEqual(this.orders, res)) {
+        if (!_.isEqual(this.data.orders, res)) {
           this.emit('order', res);
-          this.orders = res;
+          this.data.orders = res;
         }
       });
     }, 1000);
@@ -65,7 +67,7 @@ class Account extends EventEmitter {
 
         if (!_.isEmpty(res)) {
 
-          _.mergeWith(this.fills , res, (o,s) => {
+          _.mergeWith(this.data.fills , res, (o,s) => {
             if (_.isArray(o)) {
               return o.concat(s);
             }
@@ -85,6 +87,7 @@ class Account extends EventEmitter {
       this.update();
 
     }, 10000);
+
   }
 
 }
