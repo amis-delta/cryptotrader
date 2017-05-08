@@ -1,7 +1,7 @@
 var series = [];
 
 var host = '205.178.62.72';
-// host = 'localhost';
+host = 'localhost';
 
 var user = document.URL.split('/').pop();
 
@@ -13,7 +13,7 @@ var total = {};
 var rate = 0
 
 var chartLow = 0
-var chartHigh = .003;
+var chartHigh = .0003;
 
 if (user=='will') { chartLow = .03; chartHigh = .05;}
 
@@ -31,7 +31,6 @@ ws.onopen = () => {
 
 ws.onmessage = (data) => {
   let msg = JSON.parse(data.data);
-  console.log(msg);
   if (msg.msgType == 'user_update') {
     parseChartDatum(msg);
   }

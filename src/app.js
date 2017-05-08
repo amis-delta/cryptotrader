@@ -21,7 +21,6 @@ app.use(express.static('../dist'));
 app.use(express.static('../node_modules/chartist-plugin-tooltips/dist'));
 
 app.get('/:user', (req, res, next) => {
-  console.log(req.params);
   res.sendFile(path.join(__dirname + '/../dist/index.html'));
 
 });
@@ -87,8 +86,8 @@ wss.on('connection', function connection(ws) {
 
     /* map websocket request to existing client if possible */
     if (msg.request == 'initialize') {
-      if(Object.keys(users).indexOf(data) > -1) {
-        clients[ws.upgradeReq.headers['sec-websocket-key']]['user'] = data
+      if(Object.keys(users).indexOf(msg.user) > -1) {
+        clients[ws.upgradeReq.headers['sec-websocket-key']]['user'] = msg.user
       }
     }
 
