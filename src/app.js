@@ -82,7 +82,12 @@ wss.on('connection', function connection(ws) {
 
   ws.on('message', function incoming(data) {
     console.log('Incoming msg: ', data);
-    let msg = JSON.parse(data);
+    let msg;
+    try {
+      msg = JSON.parse(data);
+    } catch(e) {
+      console.log('Unparsable msg:', data)
+    }
 
     /* map websocket request to existing client if possible */
     if (msg.request == 'initialize') {
