@@ -14,8 +14,9 @@ var rate = 0
 
 var chartLow = 0
 var chartHigh = .0003;
+var maxPoints = 60 * 8;
 
-if (user=='will') { chartLow = .03; chartHigh = .05;}
+if (user=='will') { chartLow = .035; chartHigh = .045;}
 
 ws.onopen = () => {
   ws.send(JSON.stringify({
@@ -61,7 +62,7 @@ var parseChartDatum = function(row) {
   Object.keys(bs).forEach( (b) => {
     if (bs[b]['btcValue'] > 0 && keys.indexOf(b) === -1) {
       keys.push(b);
-      series.push([0]);
+      series.push(Array(maxPoints));
     }
   });
   total['btcs'] = 0;
@@ -110,7 +111,6 @@ var parseHistory = function(res) {
 
 
 var count = 0;
-var maxPoints = 60 * 12;
 setInterval( () => {
   document.getElementById("total").innerHTML = "Total PL: $" + total['usd'];
   if (count >= 60) {
