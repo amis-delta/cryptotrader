@@ -98,18 +98,23 @@ wss.on('connection', function connection(ws) {
 
     /* send history when requested */
     else if (msg.request == 'history') {
-      let response = history.map( (row) => {
-        return {
-          marketData: row.marketData,
-          balances: row.users[msg.user].balances,
-          orders:   row.users[msg.user].orders
-        };
-      });
+      let response;
+      try {
+        response = history.map( (row) => {
+          return {
+            marketData: row.marketData,
+            balances: row.users[msg.user].balances,
+            orders:   row.users[msg.user].orders
+          };
+        });
 
-      ws.send(JSON.stringify({
-        msgType: 'history',
-        response: response
-      }));
+        ws.send(JSON.stringify({
+          msgType: 'history',
+          response: response
+        }));
+      } catch(e) {
+        console.log(new Date(), '- History not sent');
+      }
     }
 
   });
