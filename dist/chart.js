@@ -16,7 +16,7 @@ var chartLow = 0
 var chartHigh = .0003;
 var maxPoints = 60 * 8;
 
-if (user=='will') { chartLow = .035; chartHigh = .045;}
+if (user=='will') { chartLow = .085; chartHigh = .095;}
 
 ws.onopen = () => {
   ws.send(JSON.stringify({
