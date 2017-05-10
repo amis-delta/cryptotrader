@@ -14,7 +14,10 @@ var path = require('path');
 
 var port = 8888;
 
-
+process.on('uncaughtException', function (err) {
+  console.error(err.stack);
+  console.log("Node NOT Exiting...");
+});
 
 
 app.use(express.static('../dist'));
