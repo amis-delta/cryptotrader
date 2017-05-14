@@ -3,7 +3,6 @@
 var series = [];
 
 var host = '205.178.62.72';
-host = 'localhost';
 
 var user = document.URL.split('/').pop();
 
@@ -15,7 +14,6 @@ var total = {};
 var rate = 0
 var maxPoints = 8 * 60;
 
-user = 'jack'
 
 ws.onopen = () => {
   ws.send(JSON.stringify({
