@@ -23,6 +23,7 @@
   "dependencies": {
     "chartist": "^0.11.0",
     "chartist-plugin-tooltips": "0.0.17",
+    "highcharts": "^5.0.11",
     "poloniex-unofficial": "^1.1.2",
     "react": "^15.5.4",
     "react-dom": "^15.5.4"

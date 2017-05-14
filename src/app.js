@@ -22,9 +22,10 @@ process.on('uncaughtException', function (err) {
 
 app.use(express.static('../dist'));
 app.use(express.static('../node_modules/chartist-plugin-tooltips/dist'));
+app.use('/highcharts/', express.static('../node_modules/highcharts/'));
 
 app.get('/:user', (req, res, next) => {
-  res.sendFile(path.join(__dirname + '/../dist/index.html'));
+  res.sendFile(path.join(__dirname + '../dist/index.html'));
 
 });
 
@@ -73,9 +74,6 @@ wss.on('connection', function connection(ws) {
     ws: ws
   };
 
-  /* send user history */
-
-
   ws.on('close', function() {
     console.log(Date(), ' - Websocket Disconnected:', ws.upgradeReq.headers['sec-websocket-key']);
     delete clients[ws.upgradeReq.headers['sec-websocket-key']];
@@ -105,6 +103,7 @@ wss.on('connection', function connection(ws) {
       try {
         response = history.map( (row) => {
           return {
+            timestamp: row.timestamp,
             marketData: row.marketData,
             balances: row.users[msg.user].balances,
             orders:   row.users[msg.user].orders
@@ -145,6 +144,7 @@ setInterval( () => {
     }
   });
   let row = {
+    timestamp: new Date().getTime(),
     marketData: _.cloneDeep(marketData.marketData),
     users: tempUsers
   }
@@ -165,6 +165,7 @@ var formatUserData = function(user) {
   });
 
   let res = {
+    timestamp: new Date().getTime(),
     msgType:    'user_update',
     strategies: strategies,
     trades:     data.account.data.trades,
