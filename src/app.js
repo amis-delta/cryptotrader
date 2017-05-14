@@ -20,12 +20,12 @@ process.on('uncaughtException', function (err) {
 });
 
 
-app.use(express.static('../dist'));
-app.use(express.static('../node_modules/chartist-plugin-tooltips/dist'));
-app.use('/highcharts/', express.static('../node_modules/highcharts/'));
+app.use(express.static('./../dist'));
+app.use(express.static('./../node_modules/chartist-plugin-tooltips/dist'));
+app.use('/highcharts/', express.static('./../node_modules/highcharts/'));
 
 app.get('/:user', (req, res, next) => {
-  res.sendFile(path.join(__dirname + '../dist/index.html'));
+  res.sendFile(path.join(__dirname + './../dist/index.html'));
 
 });
 
