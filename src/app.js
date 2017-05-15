@@ -113,8 +113,7 @@ wss.on('connection', function connection(ws) {
           return {
             timestamp: row.timestamp,
             marketData: row.marketData,
-            balances: row.users[msg.user].balances,
-            orders:   row.users[msg.user].orders
+            balances: row.users[msg.user].balances
           };
         });
 
@@ -122,6 +121,7 @@ wss.on('connection', function connection(ws) {
           msgType: 'history',
           response: response
         }));
+        console.log('History sent.');
       } catch(e) {
         console.log(new Date(), '- History not sent');
       }
@@ -138,7 +138,7 @@ setInterval( () => {
       clients[c].ws.send(JSON.stringify(formatUserData(clients[c]['user'])));
     }
   });
-}, 1000);
+}, 2000);
 
 
 /* record history */
