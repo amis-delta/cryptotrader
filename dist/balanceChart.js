@@ -163,7 +163,7 @@ var parseHistory = function(res) {
       series[i].data.push([
         row.timestamp,
         bals.usd[k]
-      ]);
+      ]);false
     });
   });
   createChart(series);
@@ -178,17 +178,18 @@ var startInterval = function() {
 
     if (count >= 59) {
       keys.forEach( (k, i) => {
+        const b = bals.usd[k];
         myChart.series[i].addPoint(
-          _.cloneDeep(bals.usd[k])
+          b
         , false, false, false);
       });
       count = 0;
 
     } else {
-      let output ={};
       keys.forEach( (k, i) => {
+        const b = bals.usd[k];
         myChart.series[i].data[myChart.series[i].data.length-1].update(
-          _.cloneDeep(bals.usd[k])
+          b
         , false, false, false)
       });
       count = count + 1;
