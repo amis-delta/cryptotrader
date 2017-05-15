@@ -160,9 +160,10 @@ var parseHistory = function(res) {
       if (series[i].length >= maxPoints) {
         series[i].shift();
       }
-      series[i].data.push(
-        bals.usd[k]
-      );
+      series[i].data.push({
+        x: row.timestamp,
+        y: bals.usd[k]
+      });
     });
   });
   createChart(series);
