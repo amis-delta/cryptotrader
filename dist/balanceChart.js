@@ -179,7 +179,7 @@ var startInterval = function() {
     if (count >= 59) {
       keys.forEach( (k, i) => {
         myChart.series[i].addPoint(
-          bals.usd[k]
+          _.cloneDeep(bals.usd[k])
         , false, false, false);
       });
       count = 0;
@@ -188,7 +188,7 @@ var startInterval = function() {
       let output ={};
       keys.forEach( (k, i) => {
         myChart.series[i].data[myChart.series[i].data.length-1].update(
-          bals.usd[k]
+          _.cloneDeep(bals.usd[k])
         , false, false, false)
       });
       count = count + 1;
