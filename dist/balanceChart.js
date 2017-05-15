@@ -163,7 +163,7 @@ var parseHistory = function(res) {
       series[i].data.push([
         row.timestamp,
         bals.usd[k]
-      ]);false
+      ]);
     });
   });
   createChart(series);
