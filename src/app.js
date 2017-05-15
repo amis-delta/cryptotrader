@@ -46,8 +46,6 @@ try {
   zlib.unzip(fs.readFileSync('../data/history.log'), (err, buffer) => {
     if (!err) {
       history = JSON.parse(buffer.toString());
-      console.log(history);
-      console.log(history[10].users);
     }
   });
 } catch(e) {
@@ -140,7 +138,7 @@ setInterval( () => {
       clients[c].ws.send(JSON.stringify(formatUserData(clients[c]['user'])));
     }
   });
-}, 500)
+}, 1000);
 
 
 /* record history */
@@ -187,7 +185,7 @@ var formatUserData = function(user) {
     trades:     data.account.data.trades,
     balances:   data.account.data.balances,
     orders:     data.account.data.orders,
-    marketData: marketData.marketData
+    marketData: marketData.raw
   }
   return res;
 }

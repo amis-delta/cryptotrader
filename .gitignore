@@ -3,3 +3,4 @@ users.js
 poloniex.py
 sandbox.js
 *.log
+connection.js

@@ -1,12 +1,13 @@
 
-
 var series = [];
 
-var host = '205.178.62.72';
+var host = connInfo.websocket;
+var port = connInfo.port;
+
 
 var user = document.URL.split('/').pop();
 
-var ws = new WebSocket('ws://' + host + ':8888');
+var ws = new WebSocket('ws://' + host + ':' + port);
 
 var bals = {btc: {}, usd: {}};
 var keys = [];
@@ -65,17 +66,7 @@ var createChart = function(series) {
     tooltip: {
       shared: false
     },
-    yAxis: {
-      title: {
-        text: 'Dollar Value'
-      },
-      tickPositioner: function() {
-        let positions = [.1, .2, .3, .4, .5]
-        return positions;
-      },
-      floor: 0,
-      ceiling: .5,
-    },
+    yAxis: balChartOptions[user].yAxis,
     rangeSelector: {
       buttons: [{
         count: 1,
@@ -103,25 +94,21 @@ var parseChartDatum = function(row, isHistorical) {
   let bs = row.balances
   let md = {};
 
-  if (isHistorical) {
-    row.marketData.forEach( (coin) => {
-      md[coin[0]] = {
-        currencyPair: coin[0],
-        last: coin[1],
-        lowestAsk: coin[2],
-        highestBid: coin[3],
-        percentChange: coin[4],
-        baseVolume: coin[5],
-        quoteVolume: coin[6],
-        isFrozen: coin[7]
-      }
-      md[coin[0]]['24hrHigh'] = coin[8];
-      md[coin[0]]['24hrLow'] = coin[9];
+  row.marketData.forEach( (coin) => {
+    md[coin[0]] = {
+      currencyPair: coin[0],
+      last: coin[1],
+      lowestAsk: coin[2],
+      highestBid: coin[3],
+      percentChange: coin[4],
+      baseVolume: coin[5],
+      quoteVolume: coin[6],
+      isFrozen: coin[7]
+    }
+    md[coin[0]]['24hrHigh'] = coin[8];
+    md[coin[0]]['24hrLow'] = coin[9];
+  });
 
-    })
-  } else {
-    md = row['marketData'];
-  }
 
   /* loop through each coin in account balances */
   Object.keys(bs).forEach( (b) => {
@@ -193,19 +180,10 @@ var startInterval = function() {
     document.getElementById("total").innerHTML = "Total PL: $" + total['usd'];
     if (count >= 59) {
       keys.forEach( (k, i) => {
-        if (series[i].data.length >= maxPoints) {
-          series[i].data.shift();
-        }
-        series[i].data.push({
-          x: ts,
-          y: bals.usd[k]
-        });
-
         myChart.series[i].addPoint(
           bals.usd[k]
         , false);
       });
-      console.log('points added');
       count = 0;
 
     } else {
@@ -229,5 +207,5 @@ var startInterval = function() {
 
     myChart.redraw();
 
-  }, 1000);
+  }, 2000);
 }
