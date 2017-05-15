@@ -189,7 +189,7 @@ var startInterval = function() {
       keys.forEach( (k, i) => {
         myChart.series[i].data[myChart.series[i].data.length-1].update(
           bals.usd[k]
-        , false, false, true)
+        , false, false, false)
       });
       count = count + 1;
     }
