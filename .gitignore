@@ -2,3 +2,4 @@ users.js
 /node_modules
 poloniex.py
 sandbox.js
+*.log

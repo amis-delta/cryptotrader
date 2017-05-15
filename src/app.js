@@ -1,4 +1,6 @@
 var _ = require('lodash');
+var fs = require('fs');
+var zlib = require('zlib');
 
 const User = require('./user');
 const MarketData = require('./marketdata');
@@ -14,10 +16,6 @@ var path = require('path');
 
 var port = 8888;
 
-process.on('uncaughtException', function (err) {
-  console.error(err.stack);
-  console.log("Node NOT Exiting...");
-});
 
 
 app.use(express.static('./../dist'));
@@ -43,6 +41,18 @@ server.listen(port, function () {
 var users = {};
 var marketData = new MarketData();
 var history = [];
+
+try {
+  zlib.unzip(fs.readFileSync('../data/history.log'), (err, buffer) => {
+    if (!err) {
+      history = JSON.parse(buffer.toString());
+      console.log(history);
+      console.log(history[10].users);
+    }
+  });
+} catch(e) {
+  console.log('no history file found');
+}
 
 var clients = {}
 
@@ -130,7 +140,6 @@ setInterval( () => {
       clients[c].ws.send(JSON.stringify(formatUserData(clients[c]['user'])));
     }
   });
-
 }, 500)
 
 
@@ -139,20 +148,27 @@ setInterval( () => {
   let tempUsers = {}
   Object.keys(users).forEach( (u) => {
     tempUsers[u] = {
-      balances: _.cloneDeep(users[u].account.data.balances),
-      orders: _.cloneDeep(users[u].account.data.orders)
+      balances: _.cloneDeep(users[u].account.data.balances)
     }
   });
   let row = {
     timestamp: new Date().getTime(),
-    marketData: _.cloneDeep(marketData.marketData),
+    marketData: _.cloneDeep(marketData.raw),
     users: tempUsers
   }
   if (history.length > 60 * 12) {
     history.shift();
   }
   history.push(row);
-  console.log('History added.. rows:', history.length);
+  console.log('History added. rows:', history.length);
+
+  zlib.deflate(JSON.stringify(history), (err, buffer) => {
+    if (!err) {
+      fs.writeFile('../data/history.log', buffer, (er) => {
+        if (er) { console.log(er) }
+      });
+    }
+  });
 
 }, 60000);
 

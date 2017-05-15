@@ -31,7 +31,7 @@ ws.onopen = () => {
 ws.onmessage = (data) => {
   let msg = JSON.parse(data.data);
   if (msg.msgType == 'user_update') {
-    parseChartDatum(msg);
+    parseChartDatum(msg, false);
   }
 
   if (msg.msgType == 'history') {
@@ -99,8 +99,29 @@ var createChart = function(series) {
 
 
 /* takes a msg and updates the bals object also adds new series */
-var parseChartDatum = function(row) {
+var parseChartDatum = function(row, isHistorical) {
   let bs = row.balances
+  let md = {};
+
+  if (isHistorical) {
+    row.marketData.forEach( (coin) => {
+      md[coin[0]] = {
+        currencyPair: coin[0],
+        last: coin[1],
+        lowestAsk: coin[2],
+        highestBid: coin[3],
+        percentChange: coin[4],
+        baseVolume: coin[5],
+        quoteVolume: coin[6],
+        isFrozen: coin[7]
+      }
+      md[coin[0]]['24hrHigh'] = coin[8];
+      md[coin[0]]['24hrLow'] = coin[9];
+
+    })
+  } else {
+    md = row['marketData'];
+  }
 
   /* loop through each coin in account balances */
   Object.keys(bs).forEach( (b) => {
@@ -115,7 +136,7 @@ var parseChartDatum = function(row) {
   total['btcs'] = 0;
   total['usd'] = 0;
   try {
-    rate = ((parseFloat(row['marketData']['USDT_BTC']['lowestAsk']) + parseFloat(row['marketData']['USDT_BTC']['highestBid'])) / 2);
+    rate = ((parseFloat(md['USDT_BTC']['lowestAsk']) + parseFloat(md['USDT_BTC']['highestBid'])) / 2);
   } catch (e) {
     console.log('No USDT rate available');
     rate = 0;
@@ -130,7 +151,7 @@ var parseChartDatum = function(row) {
       bals.usd[k] = bal * rate;
     } else {
       try {
-        bals.btc[k] = bal  * ((parseFloat(row['marketData']['BTC_' + k]['lowestAsk']) + parseFloat(row['marketData']['BTC_' + k]['highestBid'])) / 2);
+        bals.btc[k] = bal  * ((parseFloat(md['BTC_' + k]['lowestAsk']) + parseFloat(md['BTC_' + k]['highestBid'])) / 2);
         bals.usd[k] = bals.btc[k] * rate;
       } catch (e) {
         console.log('No market data available for:', k);
@@ -148,7 +169,7 @@ var parseHistory = function(res) {
   keys = [];
   /* loop through each historical point */
   res.forEach( (row) => {
-    parseChartDatum(row);
+    parseChartDatum(row, true);
     /* loop through each coin in one point */
     keys.forEach( (k, i) => {
       if (series[i].length >= maxPoints) {
