@@ -13,7 +13,7 @@ var bals = {btc: {}, usd: {}};
 var keys = [];
 var total = {};
 var rate = 0
-var maxPoints = 8 * 60;
+var maxPoints = 12 * 60;
 
 
 ws.onopen = () => {
@@ -174,31 +174,22 @@ var parseHistory = function(res) {
 var count = 0;
 var startInterval = function() {
   setInterval( () => {
-    let ts = new Date().getTime()
     document.getElementById("total").innerHTML = "Total PL: $" + total['usd'];
+
     if (count >= 59) {
       keys.forEach( (k, i) => {
         myChart.series[i].addPoint(
           bals.usd[k]
-        , false);
+        , false, false, false);
       });
       count = 0;
 
     } else {
       let output ={};
       keys.forEach( (k, i) => {
-        /* update internal series structure */
-        series[i].data[series[i].data.length-1] = {
-          x: ts,
-          y: bals.usd[k]
-        };
-
         myChart.series[i].data[myChart.series[i].data.length-1].update(
           bals.usd[k]
-        , false)
-
-
-
+        , false, false, true)
       });
       count = count + 1;
     }
