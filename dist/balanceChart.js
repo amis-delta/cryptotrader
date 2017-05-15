@@ -174,15 +174,18 @@ var parseHistory = function(res) {
 var count = 0;
 var startInterval = function() {
   setInterval( () => {
+    let ts = new Date().getTime();
     document.getElementById("total").innerHTML = "Total PL: $" + total['usd'];
 
-    if (count >= 59) {
+    if (count >= 11) {
       keys.forEach( (k, i) => {
         const b = bals.usd[k];
-        myChart.series[i].addPoint(
-          b
-        , false, false, false);
+        myChart.series[i].addPoint({
+          x: ts,
+          y: b
+        }, false, false, false);
       });
+
       count = 0;
 
     } else {
@@ -190,12 +193,12 @@ var startInterval = function() {
         const b = bals.usd[k];
         myChart.series[i].data[myChart.series[i].data.length-1].update(
           b
-        , false, false, false)
+        , false, false)
       });
       count = count + 1;
     }
 
     myChart.redraw();
 
-  }, 2000);
+  }, 5000);
 }
