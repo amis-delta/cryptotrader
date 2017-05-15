@@ -142,8 +142,6 @@ var parseChartDatum = function(row, isHistorical) {
         bals.usd[k] = bals.btc[k] * rate;
       } catch (e) {
         console.log('No market data available for:', k);
-        bals.btc[k] = 0;
-        bals.usd[k] = 0;
       }
     }
     total['btcs'] += bals.btc[k];
