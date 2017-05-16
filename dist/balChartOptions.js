@@ -16,7 +16,7 @@ balChartOptions = {
     yAxis: {
       title: {
         text: 'Dollar Value'
-      },
+      }
     }
   }
 }

@@ -10,10 +10,12 @@ var user = document.URL.split('/').pop();
 var ws = new WebSocket('ws://' + host + ':' + port);
 
 var bals = {btc: {}, usd: {}};
+var marketdata = {};
 var keys = [];
 var total = {};
-var rate = 0
+var rate = 0;
 var maxPoints = 12 * 60;
+
 
 
 ws.onopen = () => {
@@ -94,19 +96,21 @@ var parseChartDatum = function(row, isHistorical) {
   let bs = row.balances
   let md = {};
 
-  row.marketData.forEach( (coin) => {
-    md[coin[0]] = {
-      currencyPair: coin[0],
-      last: coin[1],
-      lowestAsk: coin[2],
-      highestBid: coin[3],
-      percentChange: coin[4],
-      baseVolume: coin[5],
-      quoteVolume: coin[6],
-      isFrozen: coin[7]
+  row.marketData.forEach( (pair) => {
+    md[pair[0]] = {
+      currencyPair: pair[0],
+      last: pair[1],
+      lowestAsk: pair[2],
+      highestBid: pair[3],
+      percentChange: pair[4],
+      baseVolume: pair[5],
+      quoteVolume: pair[6],
+      isFrozen: pair[7]
     }
-    md[coin[0]]['24hrHigh'] = coin[8];
-    md[coin[0]]['24hrLow'] = coin[9];
+    md[pair[0]]['24hrHigh'] = pair[8];
+    md[pair[0]]['24hrLow'] = pair[9];
+
+    marketdata[pair[0]] = pair;
   });
 
 
@@ -129,7 +133,12 @@ var parseChartDatum = function(row, isHistorical) {
     rate = 0;
   }
   keys.forEach( (k) => {
-    let bal = parseFloat(bs[k]['onOrders']) + parseFloat(bs[k]['available'])
+    let bal = 0
+    try {
+      bal = parseFloat(bs[k]['onOrders']) + parseFloat(bs[k]['available']);
+    } catch(e) {
+      console.log('No balance for:', k)
+    }
     if (k == 'USDT') {
       bals.btc[k] = bal / rate;
       bals.usd[k] = bal;
@@ -149,7 +158,7 @@ var parseChartDatum = function(row, isHistorical) {
   });
 
 }
-
+var hist;
 var parseHistory = function(res) {
   keys = [];
   /* loop through each historical point */
@@ -174,7 +183,7 @@ var parseHistory = function(res) {
 var count = 0;
 var startInterval = function() {
   setInterval( () => {
-    let ts = new Date().getTime();
+    const ts = new Date().getTime();
     document.getElementById("total").innerHTML = "Total PL: $" + total['usd'];
 
     if (count >= 11) {

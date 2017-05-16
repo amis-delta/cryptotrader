@@ -1,3 +1,5 @@
+require( "console-stamp" )( console, { pattern : "yyyy-mm-dd HH:MM:ss" } );
+
 var _ = require('lodash');
 var fs = require('fs');
 var zlib = require('zlib');
@@ -11,8 +13,11 @@ var userlist = require('../data/users');
 var server = require('http').createServer();
 var express = require('express');
 var app = express();
+var router = express.Router();
 var url = require('url');
 var path = require('path');
+
+
 
 var port = 8888;
 
@@ -22,12 +27,15 @@ app.use(express.static('./../dist'));
 app.use(express.static('./../node_modules/chartist-plugin-tooltips/dist'));
 app.use('/highcharts/', express.static('./../node_modules/highcharts/'));
 
-app.get('/:user', (req, res, next) => {
-  res.sendFile(path.join(__dirname + './../dist/index.html'));
-
+router.get('/monitor', (req, res) => {
+    res.sendFile(path.join(__dirname + './../dist/price.html'));
 });
 
+router.get('/:user', (req, res) => {
+  res.sendFile(path.join(__dirname + './../dist/index.html'));
+});
 
+app.use('/', router);
 
 server.on('request', app);
 server.on('error', function(err) {
@@ -103,10 +111,9 @@ wss.on('connection', function connection(ws) {
       if(Object.keys(users).indexOf(msg.user) > -1) {
         clients[ws.upgradeReq.headers['sec-websocket-key']]['user'] = msg.user
       }
-    }
 
     /* send history when requested */
-    else if (msg.request == 'history') {
+    } else if (msg.request == 'history') {
       let response;
       try {
         response = history.map( (row) => {
@@ -125,8 +132,25 @@ wss.on('connection', function connection(ws) {
       } catch(e) {
         console.log(new Date(), '- History not sent');
       }
-    }
 
+    } else if (msg.request == 'pricehistory') {
+      let response;
+      try {
+        response = history.map( (row) => {
+          return {
+            timestamp: row.timestamp,
+            marketData: row.marketData
+          }
+        });
+
+        ws.send(JSON.stringify({
+          msgType: 'pricehistory',
+          response: response
+        }));
+      } catch(e) {
+        console.log(new Date(), '- Price history not sent');
+      }
+    }
   });
 });
 
@@ -138,7 +162,7 @@ setInterval( () => {
       clients[c].ws.send(JSON.stringify(formatUserData(clients[c]['user'])));
     }
   });
-}, 2000);
+}, 5000);
 
 
 /* record history */
