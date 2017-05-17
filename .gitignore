@@ -1,5 +1,6 @@
 users.js
-/node_modules
+/node_modules/*
+!node_modules/poloniex-unofficial
 poloniex.py
 sandbox.js
 *.log

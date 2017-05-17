@@ -11,7 +11,6 @@ class Account extends EventEmitter {
 
     this.user = user;
     this.poloTrade = new polo.TradingWrapper(user['polKey'], user['polSecret']);
-    this.CONNTIMEOUT = false;
 
     this.lastUpdate = {
       fills: 1483228800, //initially start of 2017
@@ -34,9 +33,6 @@ class Account extends EventEmitter {
     this.poloTrade.returnCompleteBalances('all', (err, res) => {
       if (err) {
         console.log('balance request error:', err);
-        if (err['msg'].indexOf('Connection timed out') > -1) {
-          this.CONNTIMEOUT = true;
-        }
         return;
       }
 
@@ -55,9 +51,6 @@ class Account extends EventEmitter {
       this.poloTrade.returnOpenOrders('all', (err, res) => {
         if (err) {
           console.log('order request error:', err);
-          if (err['msg'].indexOf('Connection timed out') > -1) {
-            this.CONNTIMEOUT = true;
-          }
           return;
         }
 
@@ -75,9 +68,6 @@ class Account extends EventEmitter {
       this.poloTrade.returnTradeHistory('all', this.lastUpdate.fills, Math.floor(new Date().getTime() / 1000), (err, res) => {
         if (err) {
           console.log('trade request error:', err);
-          if (err['msg'].indexOf('Connection timed out') > -1) {
-            this.CONNTIMEOUT = true;
-          }
           return;
         }
 
@@ -94,11 +84,6 @@ class Account extends EventEmitter {
         }
       });
 
-      if (this.CONNTIMEOUT) {
-        console.log('Reconnecting...');
-        this.poloTrade = new polo.TradingWrapper(this.user['polKey'], this.user['polSecret']);
-        this.CONNTIMEOUT = false
-      }
     }, 2000);
 
 
