@@ -10,7 +10,7 @@ var user = document.URL.split('/').pop();
 var ws = new WebSocket('ws://' + host + ':' + port);
 
 var pairslist = [];
-var prices = {};
+var prices = [];
 var series = [];
 var maxPoints = 12 * 60;
 
@@ -121,6 +121,7 @@ var parseChartDatum = function(row, isHistorical) {
       /* add pair to list, series init and global structure if new */
       if (pairslist.indexOf(pair[mdKeys.currencyPair]) === -1) {
         pairslist.push(pair[mdKeys.currencyPair]);
+        prices.push([]);
         series.push({
           name: pair[mdKeys.currencyPair],
           data: []
@@ -128,7 +129,18 @@ var parseChartDatum = function(row, isHistorical) {
       }
 
       /* update the global record */
-      prices[pair[mdKeys.currencyPair]] = parseFloat(pair[mdKeys.percentChange]);
+      prices[pairslist.indexOf(pair[mdKeys.currencyPair])] = [
+        pair[mdKeys.currencyPair],
+        parseFloat(pair[1]),
+        parseFloat(pair[2]),
+        parseFloat(pair[3]),
+        parseFloat(pair[4]),
+        parseFloat(pair[5]),
+        parseFloat(pair[6]),
+        pair[7],
+        parseFloat(pair[8]),
+        parseFloat(pair[9]),
+      ];
     }
 
   });
@@ -147,7 +159,7 @@ var parseHistory = function(res) {
       }
       series[i].data.push({
         x: row.timestamp,
-        y: prices[pair]
+        y:   prices[pairslist.indexOf(pair)][mdKeys.percentChange]
       });
     });
   });
@@ -164,7 +176,7 @@ var startInterval = function() {
       pairslist.forEach( (pair, i) => {
         myChart.series[i].addPoint({
           x: ts,
-          y: prices[pair]
+          y: prices[pairslist.indexOf(pair)][mdKeys.percentChange]
         }, false);
       });
       count = 0;
@@ -173,10 +185,10 @@ var startInterval = function() {
       pairslist.forEach( (pair, i) => {
         try {
           myChart.series[i].data[myChart.series[i].data.length-1].update(
-            prices[pair]
+            prices[pairslist.indexOf(pair)][mdKeys.percentChange]
           , false)
         } catch(e) {
-          console.log('Cannot update:', pair, 'with balance:', prices[pair]);
+          console.log('Cannot update:', pair, 'with balance:', prices[pairslist.indexOf(pair)][mdKeys.percentChange]);
         }
 
       });
@@ -184,6 +196,14 @@ var startInterval = function() {
     }
 
     myChart.redraw();
-
+    dt.clear().rows.add(prices).draw();
   }, 5000);
 }
+
+var dt;
+$(document).ready(function() {
+    dt = $('#priceTable').DataTable( {
+        data: prices,
+        columns: Object.keys(mdKeys).map( (k) => ({title: k}))
+    } );
+} );
