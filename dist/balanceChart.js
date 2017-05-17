@@ -208,9 +208,13 @@ var startInterval = function() {
     } else {
       keys.forEach( (k, i) => {
         const b = bals.usd[k];
-        myChart.series[i].data[myChart.series[i].data.length-1].update(
-          b
-        , false, false)
+        try {
+          myChart.series[i].data[myChart.series[i].data.length-1].update(
+            b
+          , false, false)
+        } catch(e) {
+          console.log('Cannot update:', key, 'with balance:', b);
+        }
       });
       count = count + 1;
     }

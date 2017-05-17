@@ -1,6 +1,5 @@
 var _ = require('lodash');
 
-var polo = require("poloniex-unofficial");
 var Portgamma = require('./strategies/portgamma');
 var Account = require('./account');
 
@@ -8,8 +7,7 @@ class User {
   constructor(user, marketData) {
 
     this.marketData = marketData
-    this.poloTrade = new polo.TradingWrapper(user['polKey'], user['polSecret']);
-    this.account = new Account(this.poloTrade);
+    this.account = new Account(user);
 
 
     this.strategies = {};

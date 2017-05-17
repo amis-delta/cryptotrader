@@ -48,7 +48,6 @@ ws.onmessage = (data) => {
     parseHistory(msg.response);
   }
 
-
 }
 
 
@@ -172,10 +171,13 @@ var startInterval = function() {
 
     } else {
       pairslist.forEach( (pair, i) => {
-
-        myChart.series[i].data[myChart.series[i].data.length-1].update(
-          prices[pair]
-        , false)
+        try {
+          myChart.series[i].data[myChart.series[i].data.length-1].update(
+            prices[pair]
+          , false)
+        } catch(e) {
+          console.log('Cannot update:', pair, 'with balance:', prices[pair]);
+        }
 
       });
       count = count + 1;
