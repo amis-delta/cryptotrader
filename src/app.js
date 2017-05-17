@@ -60,8 +60,8 @@ try {
   console.log('no history file found');
 }
 
-var clients = {}
-
+var monitorClients = {};
+var wsClients = {};
 
 /* create users from file */
 Object.keys(userlist).forEach( (u) => {
@@ -84,16 +84,14 @@ wss.broadcast = function(data) {
 };
 
 wss.on('connection', function connection(ws) {
-  console.log(Date(), ' - Websocket connected:', ws.upgradeReq.headers['sec-websocket-key']);
+  console.log('Websocket connected:', ws.upgradeReq.headers['sec-websocket-key']);
 
-  clients[ws.upgradeReq.headers['sec-websocket-key']] = {
-    ws: ws
-  };
+
 
   ws.on('close', function() {
-    console.log(Date(), ' - Websocket Disconnected:', ws.upgradeReq.headers['sec-websocket-key']);
-    delete clients[ws.upgradeReq.headers['sec-websocket-key']];
-    console.log(Object.keys(clients).length, 'clients connected');
+    console.log('Websocket Disconnected:', ws.upgradeReq.headers['sec-websocket-key']);
+    delete wsClients[ws.upgradeReq.headers['sec-websocket-key']];
+    console.log(Object.keys(wsClients).length, 'clients connected');
   });
 
 
@@ -108,8 +106,14 @@ wss.on('connection', function connection(ws) {
 
     /* map websocket request to existing client if possible */
     if (msg.request == 'initialize') {
+
+      /* add balance client to client map */
+      wsClients[ws.upgradeReq.headers['sec-websocket-key']] = {
+        ws: ws,
+        type: 'balance'
+      };
       if(Object.keys(users).indexOf(msg.user) > -1) {
-        clients[ws.upgradeReq.headers['sec-websocket-key']]['user'] = msg.user
+        wsClients[ws.upgradeReq.headers['sec-websocket-key']]['user'] = msg.user
       }
 
     /* send history when requested */
@@ -130,10 +134,16 @@ wss.on('connection', function connection(ws) {
         }));
         console.log('History sent.');
       } catch(e) {
-        console.log(new Date(), '- History not sent');
+        console.log('History not sent');
       }
 
     } else if (msg.request == 'pricehistory') {
+
+      wsClients[ws.upgradeReq.headers['sec-websocket-key']] = {
+        ws: ws,
+        type: 'monitor'
+      }
+
       let response;
       try {
         response = history.map( (row) => {
@@ -147,8 +157,9 @@ wss.on('connection', function connection(ws) {
           msgType: 'pricehistory',
           response: response
         }));
+
       } catch(e) {
-        console.log(new Date(), '- Price history not sent');
+        console.log('Price history not sent');
       }
     }
   });
@@ -157,9 +168,14 @@ wss.on('connection', function connection(ws) {
 
 /* send updates to connected websockets */
 setInterval( () => {
-  Object.keys(clients).forEach( (c) => {
-    if (clients[c]['user']) {
-      clients[c].ws.send(JSON.stringify(formatUserData(clients[c]['user'])));
+
+  Object.keys(wsClients).forEach( (c) => {
+    if (wsClients[c]['type'] == 'balance') {
+      if (wsClients[c]['user']) {
+        wsClients[c].ws.send(JSON.stringify(formatUserData(wsClients[c]['user'])));
+      }
+    } else if (wsClients[c]['type'] == 'monitor') {
+        wsClients[c].ws.send(JSON.stringify(formatMonitorData()));
     }
   });
 }, 5000);
@@ -211,5 +227,16 @@ var formatUserData = function(user) {
     orders:     data.account.data.orders,
     marketData: marketData.raw
   }
+  return res;
+}
+
+
+var formatMonitorData = function() {
+  let res = {
+    msgType: 'price_update',
+    timestamp: new Date().getTime(),
+    marketData: marketData.raw
+  }
+
   return res;
 }

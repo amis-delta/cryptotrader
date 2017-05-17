@@ -72,17 +72,25 @@ var createChart = function(series) {
     rangeSelector: {
       buttons: [{
         count: 1,
-        type: 'minute',
-        text: '1M'
+        type: 'hour',
+        text: '1H'
       }, {
-        count: 5,
-        type: 'minute',
-        text: '5M'
+        count: 2,
+        type: 'hour',
+        text: '2H'
+      }, {
+        count: 4,
+        type: 'hour',
+        text: '4H'
+      }, {
+        count: 8,
+        type: 'hour',
+        text: '8H'
       }, {
         type: 'all',
         text: 'All'
       }],
-      inputEnabled: true,
+      inputEnabled: false,
       selected: 0
     },
     series: series

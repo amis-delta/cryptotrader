@@ -27,7 +27,7 @@ class Account extends EventEmitter {
 
     this.poloTrade.returnCompleteBalances('all', (err, res) => {
       if (err) {
-        console.log(new Date(), 'balance request error:', err);
+        console.log('balance request error:', err);
         return;
       }
 
@@ -44,7 +44,7 @@ class Account extends EventEmitter {
 
       this.poloTrade.returnOpenOrders('all', (err, res) => {
         if (err) {
-          console.log(new Date(), 'order request error:', err);
+          console.log('order request error:', err);
           return;
         }
 
@@ -61,7 +61,7 @@ class Account extends EventEmitter {
 
       this.poloTrade.returnTradeHistory('all', this.lastUpdate.fills, Math.floor(new Date().getTime() / 1000), (err, res) => {
         if (err) {
-          console.log(new Date(), 'trade request error:', err);
+          console.log('trade request error:', err);
           return;
         }
 
