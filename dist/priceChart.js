@@ -14,6 +14,7 @@ var prices = [];
 var series = [];
 var maxPoints = 12 * 60;
 
+var totals = {};
 
 var mdKeys = {
   currencyPair: 0,
@@ -114,6 +115,9 @@ function sleep(ms) {
 /* takes a msg and updates the prices object also adds new series */
 var parseChartDatum = function(row, isHistorical) {
 
+  totals['sum'] = 0
+  totals['avg'] = 0
+  totals['count'] = 0
   /* loop through each pair in market data */
   row.marketData.forEach( (pair) => {
     /* only btc related pairs */
@@ -141,9 +145,13 @@ var parseChartDatum = function(row, isHistorical) {
         parseFloat(pair[8]),
         parseFloat(pair[9]),
       ];
+
+      totals['sum'] += parseFloat(pair[mdKeys.percentChange])
+      totals['count']++;
     }
 
   });
+  totals['avg'] = totals['sum'] /totals['count'];
 
 }
 
@@ -172,6 +180,7 @@ var count = 0;
 var startInterval = function() {
   setInterval( () => {
     const ts = new Date().getTime();
+    document.getElementById("avgchange").innerHTML = "Average Market % Change: " + totals['avg'];
     if (count >= 11) {
       pairslist.forEach( (pair, i) => {
         myChart.series[i].addPoint({
