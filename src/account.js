@@ -93,7 +93,7 @@ class Account extends EventEmitter {
     this.interval = setInterval( () => {
       this.update();
 
-    }, 10000);
+    }, 15000);
 
   }
 

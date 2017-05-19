@@ -32,7 +32,7 @@ router.get('/monitor', (req, res) => {
 });
 
 router.get('/:user', (req, res) => {
-  res.sendFile(path.join(__dirname + './../dist/index.html'));
+  res.sendFile(path.join(__dirname + './../dist/balance.html'));
 });
 
 app.use('/', router);
@@ -172,7 +172,8 @@ setInterval( () => {
   Object.keys(wsClients).forEach( (c) => {
     if (wsClients[c]['type'] == 'balance') {
       if (wsClients[c]['user']) {
-        wsClients[c].ws.send(JSON.stringify(formatUserData(wsClients[c]['user'])));
+        let res = formatUserData(wsClients[c]['user']);
+        wsClients[c].ws.send(JSON.stringify(res));
       }
     } else if (wsClients[c]['type'] == 'monitor') {
         wsClients[c].ws.send(JSON.stringify(formatMonitorData()));
@@ -198,7 +199,6 @@ setInterval( () => {
     history.shift();
   }
   history.push(row);
-  console.log('History added. rows:', history.length);
 
   zlib.deflate(JSON.stringify(history), (err, buffer) => {
     if (!err) {

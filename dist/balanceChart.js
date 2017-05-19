@@ -11,11 +11,20 @@ var ws = new WebSocket('ws://' + host + ':' + port);
 
 var bals = {btc: {}, usd: {}};
 var marketdata = {};
-var keys = [];
+var coinslist = [];
+var balances = [];
 var total = {};
 var rate = 0;
 var maxPoints = 12 * 60;
 
+var balKeys = {
+  coin: 0,
+  usd: 1,
+  btc: 2,
+  balance: 3,
+  available: 4,
+  onOrder: 5
+}
 
 
 ws.onopen = () => {
@@ -41,8 +50,6 @@ ws.onmessage = (data) => {
     console.log('History received');
     parseHistory(msg.response);
   }
-
-
 }
 
 
@@ -101,9 +108,13 @@ var createChart = function(series) {
 
 /* takes a msg and updates the bals object also adds new series */
 var parseChartDatum = function(row, isHistorical) {
+  if (Object.keys(row.balances).length === 0) {
+    console.log('empty timestamp... no balances to parse');
+    return;
+  }
+
   let bs = row.balances
   let md = {};
-
   row.marketData.forEach( (pair) => {
     md[pair[0]] = {
       currencyPair: pair[0],
@@ -124,8 +135,9 @@ var parseChartDatum = function(row, isHistorical) {
 
   /* loop through each coin in account balances */
   Object.keys(bs).forEach( (b) => {
-    if (bs[b]['btcValue'] > 0 && keys.indexOf(b) === -1) {
-      keys.push(b);
+    if (bs[b]['btcValue'] > 0 && coinslist.indexOf(b) === -1) {
+      coinslist.push(b);
+      balances.push(Array(Object.keys(balKeys).length));
       series.push({
         name: b,
         data: []
@@ -140,7 +152,9 @@ var parseChartDatum = function(row, isHistorical) {
     console.log('No USDT rate available');
     rate = 0;
   }
-  keys.forEach( (k) => {
+
+  /* loop through each known coin and populate balances */
+  coinslist.forEach( (k) => {
     let bal = 0
     try {
       bal = parseFloat(bs[k]['onOrders']) + parseFloat(bs[k]['available']);
@@ -148,38 +162,59 @@ var parseChartDatum = function(row, isHistorical) {
       console.log('No balance for:', k)
     }
     if (k == 'USDT') {
-      bals.btc[k] = bal / rate;
-      bals.usd[k] = bal;
+      balances[coinslist.indexOf(k)][balKeys.coin] = k;
+      balances[coinslist.indexOf(k)][balKeys.usd] = bal;
+      balances[coinslist.indexOf(k)][balKeys.btc] = bal / rate;
+      balances[coinslist.indexOf(k)][balKeys.balance] = bal;
+      balances[coinslist.indexOf(k)][balKeys.available] = parseFloat(bs[k]['available']);
+      balances[coinslist.indexOf(k)][balKeys.onOrder] = parseFloat(bs[k]['onOrders']);
+      // bals.btc[k] = bal / rate;
+      // bals.usd[k] = bal;
     } else if (k == 'BTC') {
-      bals.btc[k] = bal;
-      bals.usd[k] = bal * rate;
+      balances[coinslist.indexOf(k)][balKeys.coin] = k;
+      balances[coinslist.indexOf(k)][balKeys.usd] = bal * rate;
+      balances[coinslist.indexOf(k)][balKeys.btc] = bal;
+      balances[coinslist.indexOf(k)][balKeys.balance] = bal;
+      balances[coinslist.indexOf(k)][balKeys.available] = parseFloat(bs[k]['available']);
+      balances[coinslist.indexOf(k)][balKeys.onOrder] = parseFloat(bs[k]['onOrders']);
+
+      // bals.btc[k] = bal;
+      // bals.usd[k] = bal * rate;
     } else {
       try {
-        bals.btc[k] = bal  * ((parseFloat(md['BTC_' + k]['lowestAsk']) + parseFloat(md['BTC_' + k]['highestBid'])) / 2);
-        bals.usd[k] = bals.btc[k] * rate;
+        const last = ((parseFloat(md['BTC_' + k]['lowestAsk']) + parseFloat(md['BTC_' + k]['highestBid'])) / 2);
+        balances[coinslist.indexOf(k)][balKeys.coin] = k;
+        balances[coinslist.indexOf(k)][balKeys.btc] = bal * last;
+        balances[coinslist.indexOf(k)][balKeys.usd] = balances[coinslist.indexOf(k)][balKeys.btc] * rate;
+        balances[coinslist.indexOf(k)][balKeys.balance] = bal;
+        balances[coinslist.indexOf(k)][balKeys.available] = parseFloat(bs[k]['available']);
+        balances[coinslist.indexOf(k)][balKeys.onOrder] = parseFloat(bs[k]['onOrders']);
+
+        // bals.btc[k] = bal  * ((parseFloat(md['BTC_' + k]['lowestAsk']) + parseFloat(md['BTC_' + k]['highestBid'])) / 2);
+        // bals.usd[k] = bals.btc[k] * rate;
       } catch (e) {
         console.log('No market data available for:', k);
       }
     }
-    total['btcs'] += bals.btc[k];
-    total['usd'] += bals.usd[k]
+    total['btcs'] += balances[coinslist.indexOf(k)][balKeys.btc];
+    total['usd'] += balances[coinslist.indexOf(k)][balKeys.usd];
   });
 
 }
 var hist;
 var parseHistory = function(res) {
-  keys = [];
+  coinslist = [];
   /* loop through each historical point */
   res.forEach( (row) => {
     parseChartDatum(row, true);
     /* loop through each coin in one point */
-    keys.forEach( (k, i) => {
+    coinslist.forEach( (k, i) => {
       if (series[i].length >= maxPoints) {
         series[i].shift();
       }
       series[i].data.push({
         x: row.timestamp,
-        y: bals.usd[k]
+        y: balances[coinslist.indexOf(k)][balKeys.usd]
       });
     });
   });
@@ -195,8 +230,8 @@ var startInterval = function() {
     document.getElementById("total").innerHTML = "Total PL: $" + total['usd'];
 
     if (count >= 11) {
-      keys.forEach( (k, i) => {
-        const b = bals.usd[k];
+      coinslist.forEach( (k, i) => {
+        const b = balances[i][balKeys.usd];
         myChart.series[i].addPoint({
           x: ts,
           y: b
@@ -206,8 +241,8 @@ var startInterval = function() {
       count = 0;
 
     } else {
-      keys.forEach( (k, i) => {
-        const b = bals.usd[k];
+      coinslist.forEach( (k, i) => {
+        const b = balances[i][balKeys.usd];
         try {
           myChart.series[i].data[myChart.series[i].data.length-1].update(
             b
@@ -220,6 +255,20 @@ var startInterval = function() {
     }
 
     myChart.redraw();
+    dt.clear().rows.add(balances).draw();
 
   }, 5000);
 }
+
+
+var dt;
+$(document).ready(function() {
+    dt = $('#balanceTable').DataTable( {
+        data: balances,
+        columns: Object.keys(balKeys).map( (k) => ({
+          title: k,
+          render: $.fn.dataTable.render.number(',', '.', 8),
+          className: 'dt-body-right'
+        }))
+    });
+} );

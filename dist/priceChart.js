@@ -197,6 +197,7 @@ var startInterval = function() {
 
     myChart.redraw();
     dt.clear().rows.add(prices).draw();
+
   }, 5000);
 }
 
@@ -204,6 +205,10 @@ var dt;
 $(document).ready(function() {
     dt = $('#priceTable').DataTable( {
         data: prices,
-        columns: Object.keys(mdKeys).map( (k) => ({title: k}))
-    } );
+        columns: Object.keys(mdKeys).map( (k) => ({
+          title: k,
+          render: $.fn.dataTable.render.number(',', '.', 8),
+          className: 'dt-body-right'
+        }))
+    });
 } );

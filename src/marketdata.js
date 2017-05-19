@@ -3,18 +3,19 @@ var EventEmitter = require('events').EventEmitter;
 
 // Import poloniex push api module
 var polo = require("poloniex-unofficial");
-var poloPush = new polo.PushWrapper(); // Get access to the push API
 
 
 class MarketData extends EventEmitter {
   constructor() {
     super();
 
+    this.poloPush = new polo.PushWrapper();
+
     this.marketData = {}
     this.coins = []
     this.raw = []
 
-    poloPush.ticker( (err, res) => {
+    this.poloPush.ticker( (err, res) => {
       if (this.coins.indexOf(res.currencyPair) === -1) {
         this.coins.push(res.currencyPair);
         this.raw.push(res.raw);
@@ -25,6 +26,9 @@ class MarketData extends EventEmitter {
       this.emit('ticker', res);
     });
 
+    setInterval(() => {
+      this.poloPush = new polo.PushWrapper();
+    }, 120000)
   }
 }
 
