@@ -5,7 +5,14 @@ balChartOptions = {
         text: 'Dollar Value'
       },
       tickPositioner: function() {
-        let positions = [0, .1, .2, .3, .4, .5, .6];
+        let positions = [];
+        let incr = .1;
+        let ticks = 10;
+
+        for (var i = 0; i <= ticks; i++) {
+          positions.push(parseFloat((incr * i).toFixed(1)));
+        }
+
         return positions;
       },
       floor: 0,
