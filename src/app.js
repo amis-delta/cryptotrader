@@ -1,3 +1,5 @@
+'use strict'
+
 require( "console-stamp" )( console, { pattern : "yyyy-mm-dd HH:MM:ss" } );
 
 var _ = require('lodash');
@@ -21,6 +23,8 @@ var path = require('path');
 
 var port = 8888;
 
+var processStartTime = new Date().getTime();
+var minimumUpTime = processStartTime + (1000 * 60 * 3);
 
 
 app.use(express.static('./../dist'));
@@ -67,6 +71,7 @@ var wsClients = {};
 Object.keys(userlist).forEach( (u) => {
   users[u] = new User(userlist[u], marketData)
 });
+// users['jack'] = new User(userlist['jack'], marketData);
 
 
 const WebSocket = require('ws');
@@ -199,6 +204,16 @@ setInterval( () => {
     history.shift();
   }
   history.push(row);
+
+  /* exit process if marketData has gone stale */
+  let idx = history.length - 1;
+  let curTime = new Date().getTime();
+  if (_.isEqual(history[idx].marketData, history[idx-1].marketData)
+    && _.isEqual(history[idx].marketData, history[idx-2].marketData)
+    && curTime > minimumUpTime) {
+        console.log('marketData is stale... exiting.');
+        process.exit(0);
+    }
 
   zlib.deflate(JSON.stringify(history), (err, buffer) => {
     if (!err) {

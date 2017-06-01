@@ -1,3 +1,5 @@
+'use strict'
+
 var EventEmitter = require('events').EventEmitter;
 
 
@@ -28,8 +30,19 @@ class MarketData extends EventEmitter {
 
     setInterval(() => {
       this.poloPush = new polo.PushWrapper();
+      console.log('New Push wrapper')
     }, 120000)
   }
+
+  // get poloPush() {
+  //   return this.poloPush;
+  // }
+  //
+  // set poloPush(canReset) {
+  //   if (canReset) {
+  //     this.poloPush = new polo.PushWrapper();
+  //   }
+  // }
 }
 
 module.exports = MarketData;
