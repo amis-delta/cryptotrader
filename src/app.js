@@ -230,8 +230,8 @@ setInterval( () => {
 var formatUserData = function(user) {
   let data = users[user];
   let strategies = {};
-  Object.keys(data.account.strategies).forEach( (val) => {
-    strategies[val] = data.account.strategies[val].data;
+  Object.keys(data.strategies).forEach( (val) => {
+    strategies[val] = data.strategies[val].data;
   });
 
   let res = {
