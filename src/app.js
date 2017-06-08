@@ -68,10 +68,10 @@ var monitorClients = {};
 var wsClients = {};
 
 /* create users from file */
-Object.keys(userlist).forEach( (u) => {
-  users[u] = new User(userlist[u], marketData)
-});
-// users['jack'] = new User(userlist['jack'], marketData);
+// Object.keys(userlist).forEach( (u) => {
+//   users[u] = new User(userlist[u], marketData)
+// });
+users['jack'] = new User(userlist['jack'], marketData);
 
 
 const WebSocket = require('ws');
@@ -139,6 +139,7 @@ wss.on('connection', function connection(ws) {
         }));
         console.log('History sent.');
       } catch(e) {
+        console.log(e.message);
         console.log('History not sent');
       }
 
@@ -229,8 +230,8 @@ setInterval( () => {
 var formatUserData = function(user) {
   let data = users[user];
   let strategies = {};
-  Object.keys(data.strategies).forEach( (val) => {
-    strategies[val] = data.strategies[val].data;
+  Object.keys(data.account.strategies).forEach( (val) => {
+    strategies[val] = data.account.strategies[val].data;
   });
 
   let res = {
