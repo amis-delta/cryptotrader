@@ -21,9 +21,10 @@ var balKeys = {
   coin: 0,
   usd: 1,
   btc: 2,
-  balance: 3,
-  available: 4,
-  onOrder: 5
+  portPct: 3,
+  balance: 4,
+  available: 5,
+  onOrder: 6
 }
 
 
@@ -115,6 +116,7 @@ var parseChartDatum = function(row, isHistorical) {
 
   let bs = row.balances
   let md = {};
+  console.log(row.marketData);
   row.marketData.forEach( (pair) => {
     md[pair[0]] = {
       currencyPair: pair[0],
@@ -200,6 +202,14 @@ var parseChartDatum = function(row, isHistorical) {
     total['usd'] += balances[coinslist.indexOf(k)][balKeys.usd];
   });
 
+  /* calculate portfolio percentages */
+  coinslist.forEach( (k) => {
+    try {
+      balances[coinslist.indexOf(k)][balKeys.portPct] = balances[coinslist.indexOf(k)][balKeys.usd] / total['usd'];
+    } catch(e) {
+      console.log('Not able to calculate pct for:', k);
+    }
+  });
 }
 var hist;
 var parseHistory = function(res) {
