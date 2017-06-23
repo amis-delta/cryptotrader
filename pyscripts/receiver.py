@@ -26,9 +26,10 @@ class receiver(threading.Thread):
           on_close = self.on_close)
 
         self.ws.on_open = self.on_open
-        self.pos = pd.DataFrame(columns=['balance', 'btcs', 'last', 'orders'])
+        self.balances = pd.DataFrame(columns=['balance', 'btc', 'last', 'orders'])
         self.initObj = {'request': 'initialize', 'user': self.user}
         self.coinIdx = []
+        self.btcusd = 0
 
 
     def run(self):
@@ -51,18 +52,21 @@ class receiver(threading.Thread):
                 if (balance != 0):
                     if coin == 'USDT':
                         last = (float(self.msg['marketData'][self.coinIdx.index('USDT_BTC')][2]) + float(self.msg['marketData'][self.coinIdx.index('USDT_BTC')][3])) / 2
-                        self.pos.ix[coin] = [balance, (balance / last) * fee, last, 0]
+                        self.balances.ix[coin] = [balance, (balance / last) * fee, last, 0]
+                        self.btcusd = last
                     elif coin == 'BTC':
                         orders = len(self.msg['orders']['USDT_BTC'])
-                        self.pos.ix[coin] = [balance, (balance) * fee, 0, orders]
+                        self.balances.ix[coin] = [balance, (balance) * fee, 0, orders]
                     else:
                         last = (float(self.msg['marketData'][self.coinIdx.index('BTC_' + coin)][2]) + float(self.msg['marketData'][self.coinIdx.index('BTC_' + coin)][3])) / 2
                         orders = len(self.msg['orders']['BTC_' + coin])                        
-                        self.pos.ix[coin] = [balance, (balance * last) * fee, last, orders]
+                        self.balances.ix[coin] = [balance, (balance * last) * fee, last, orders]
             except:
                 pass
-        self.pos.sort_index(inplace=True)
-        self.total = self.pos['btcs'].sum() * self.pos['last']['USDT']
+        self.balances['usd'] = self.balances['btc'] * self.btcusd
+        self.balances.sort_index(inplace=True)
+        self.total = self.balances['btc'].sum() * self.balances['last']['USDT']
+        self.balances['share'] = self.balances['usd'] / self.total
 
     def on_error(self, ws, error):
         print error
