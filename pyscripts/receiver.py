@@ -8,8 +8,10 @@ Created on Thu Apr 27 13:38:40 2017
 import threading
 import websocket
 import time
+import json
 import logging; logging.basicConfig(level=logging.DEBUG)
 
+import pandas as pd
 
 class receiver(threading.Thread):
 
@@ -24,7 +26,9 @@ class receiver(threading.Thread):
           on_close = self.on_close)
 
         self.ws.on_open = self.on_open
-        self.pos = pd.DataFrame(columns=['balance', 'btcs', 'last'])
+        self.pos = pd.DataFrame(columns=['balance', 'btcs', 'last', 'orders'])
+        self.initObj = {'request': 'initialize', 'user': self.user}
+        self.coinIdx = []
 
 
     def run(self):
@@ -32,23 +36,32 @@ class receiver(threading.Thread):
         return
 
     def on_message(self, ws, message):
+#        print message
         self.msg = json.loads(message)
+        
+        self.coinIdx = []
+        for pair in self.msg['marketData']:
+            self.coinIdx.append(pair[0])
+        
+        
         fee = 1 - 0.00
         for coin, val in self.msg['balances'].iteritems():
             try:
                 balance = (float(val['onOrders']) + float(val['available']))
                 if (balance != 0):
                     if coin == 'USDT':
-                        last = (float(self.msg['marketData']['USDT_BTC']['lowestAsk']) + float(self.msg['marketData']['USDT_BTC']['highestBid'])) / 2
-                        self.pos.ix[coin] = [balance, (balance / last) * fee, last]
+                        last = (float(self.msg['marketData'][self.coinIdx.index('USDT_BTC')][2]) + float(self.msg['marketData'][self.coinIdx.index('USDT_BTC')][3])) / 2
+                        self.pos.ix[coin] = [balance, (balance / last) * fee, last, 0]
                     elif coin == 'BTC':
-                        self.pos.ix[coin] = [balance, (balance) * fee, 0]
+                        orders = len(self.msg['orders']['USDT_BTC'])
+                        self.pos.ix[coin] = [balance, (balance) * fee, 0, orders]
                     else:
-                        last = (float(self.msg['marketData']['BTC_' + coin]['lowestAsk']) + float(self.msg['marketData']['BTC_' + coin]['highestBid'])) / 2
-                        self.pos.ix[coin] = [balance, (balance * last) * fee, last]
+                        last = (float(self.msg['marketData'][self.coinIdx.index('BTC_' + coin)][2]) + float(self.msg['marketData'][self.coinIdx.index('BTC_' + coin)][3])) / 2
+                        orders = len(self.msg['orders']['BTC_' + coin])                        
+                        self.pos.ix[coin] = [balance, (balance * last) * fee, last, orders]
             except:
                 pass
-
+        self.pos.sort_index(inplace=True)
         self.total = self.pos['btcs'].sum() * self.pos['last']['USDT']
 
     def on_error(self, ws, error):
@@ -58,9 +71,6 @@ class receiver(threading.Thread):
         print "### closed ###"
 
     def on_open(self, ws):
-        self.ws.send(self.user)
+        self.ws.send(json.dumps(self.initObj))
         print "connection opened"
 
-
-r = receiver('ws://205.178.62.72:8888', 'jack')
-r.start()
