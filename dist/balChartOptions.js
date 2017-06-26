@@ -6,8 +6,8 @@ balChartOptions = {
       },
       tickPositioner: function() {
         let positions = [];
-        let incr = .1;
-        let ticks = 10;
+        let incr = .2;
+        let ticks = 20;
 
         for (var i = 0; i <= ticks; i++) {
           positions.push(parseFloat((incr * i).toFixed(1)));
@@ -19,7 +19,7 @@ balChartOptions = {
       // ceiling: .5,
     }
   },
-  will: {
+  default: {
     yAxis: {
       title: {
         text: 'Dollar Value'
