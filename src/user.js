@@ -1,16 +1,16 @@
+'use strict'
 var _ = require('lodash');
 
-var Portgamma = require('./strategies/portgamma');
+
 var Account = require('./account');
 
 class User {
   constructor(user, marketData) {
 
     this.marketData = marketData
-    this.account = new Account(user);
+    this.account = new Account(user, marketData);
 
 
-    this.strategies = {};
 
 
 

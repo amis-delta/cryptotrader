@@ -6,8 +6,8 @@ balChartOptions = {
       },
       tickPositioner: function() {
         let positions = [];
-        let incr = .2;
-        let ticks = 20;
+        let incr = .25;
+        let ticks = 16;
 
         for (var i = 0; i <= ticks; i++) {
           positions.push(parseFloat((incr * i).toFixed(1)));

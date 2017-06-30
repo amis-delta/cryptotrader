@@ -27,6 +27,8 @@ class receiver(threading.Thread):
 
         self.ws.on_open = self.on_open
         self.balances = pd.DataFrame(columns=['balance', 'btc', 'last', 'orders'])
+        self.pl = pd.DataFrame(columns=['pl', 'buyCount', 'sellCount', 'buyAmt', 'sellAmt', 'buyTotal', 'sellTotal', 'openAmt'])
+        self.deposit = pd.DataFrame(columns=['pl', 'buyCount', 'sellCount', 'buyAmt', 'sellAmt', 'buyTotal', 'sellTotal', 'openAmt'])
         self.initObj = {'request': 'initialize', 'user': self.user}
         self.coinIdx = []
         self.btcusd = 0
@@ -52,21 +54,47 @@ class receiver(threading.Thread):
                 if (balance != 0):
                     if coin == 'USDT':
                         last = (float(self.msg['marketData'][self.coinIdx.index('USDT_BTC')][2]) + float(self.msg['marketData'][self.coinIdx.index('USDT_BTC')][3])) / 2
-                        self.balances.ix[coin] = [balance, (balance / last) * fee, last, 0]
+                        self.balances.loc[coin] = [balance, (balance / last) * fee, last, 0]
                         self.btcusd = last
                     elif coin == 'BTC':
                         orders = len(self.msg['orders']['USDT_BTC'])
-                        self.balances.ix[coin] = [balance, (balance) * fee, 0, orders]
+                        self.balances.loc[coin] = [balance, (balance) * fee, 0, orders]
                     else:
                         last = (float(self.msg['marketData'][self.coinIdx.index('BTC_' + coin)][2]) + float(self.msg['marketData'][self.coinIdx.index('BTC_' + coin)][3])) / 2
                         orders = len(self.msg['orders']['BTC_' + coin])                        
-                        self.balances.ix[coin] = [balance, (balance * last) * fee, last, orders]
+                        self.balances.loc[coin] = [balance, (balance * last) * fee, last, orders]
             except:
                 pass
         self.balances['usd'] = self.balances['btc'] * self.btcusd
         self.balances.sort_index(inplace=True)
         self.total = self.balances['btc'].sum() * self.balances['last']['USDT']
         self.balances['share'] = self.balances['usd'] / self.total
+        
+        for pair in self.msg['trades'].keys():
+            row = [0,0,0,0,0,0,0,0]
+            last = 0
+            for t in self.msg['trades'][pair]:
+                if t['type'] == 'buy':
+                    row[1] += 1
+                    row[3] += float(t['amount'])
+                    row[5] += float(t['total'])
+                elif t['type'] == 'sell':
+                    row[2] += 1
+                    row[4] += float(t['amount'])
+                    row[6] += float(t['total'])
+            try:
+                last = float(self.msg['marketData'][self.coinIdx.index(pair)][2])
+            except:
+                pass
+            row[7] = row[3] - row[4]
+            row[0] = (row[6] - row[5]) + (row[7] * last)
+            
+            if pair[:3] == 'BTC' and pair != 'BTC_ZEC':
+                self.pl.loc[pair] = row
+            else:
+                self.deposit.loc[pair] = row
+                    
+        self.pl.sort_values('pl', inplace=True)
 
     def on_error(self, ws, error):
         print error

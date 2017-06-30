@@ -24,7 +24,7 @@ var path = require('path');
 var port = 8888;
 
 var processStartTime = new Date().getTime();
-var minimumUpTime = processStartTime + (1000 * 60 * 3);
+var minimumUpTime = processStartTime + (10 * 60 *1000);
 
 
 app.use(express.static('./../dist'));
@@ -68,10 +68,10 @@ var monitorClients = {};
 var wsClients = {};
 
 /* create users from file */
-Object.keys(userlist).forEach( (u) => {
-  users[u] = new User(userlist[u], marketData)
-});
-// users['jack'] = new User(userlist['jack'], marketData);
+// Object.keys(userlist).forEach( (u) => {
+//   users[u] = new User(userlist[u], marketData)
+// });
+users['jack'] = new User(userlist['jack'], marketData);
 
 
 const WebSocket = require('ws');
@@ -126,10 +126,15 @@ wss.on('connection', function connection(ws) {
       let response;
       try {
         response = history.map( (row) => {
+          let b;
+          /* check if user data exists for this timestamp */
+          if (row.users[msg.user]) {
+            b = row.users[msg.user].balances;
+          }
           return {
             timestamp: row.timestamp,
             marketData: row.marketData,
-            balances: row.users[msg.user].balances
+            balances: b
           };
         });
 
@@ -209,12 +214,16 @@ setInterval( () => {
   /* exit process if marketData has gone stale */
   let idx = history.length - 1;
   let curTime = new Date().getTime();
-  if (_.isEqual(history[idx].marketData, history[idx-1].marketData)
-    && _.isEqual(history[idx].marketData, history[idx-2].marketData)
-    && curTime > minimumUpTime) {
+  if (curTime > minimumUpTime
+    && _.isEqual(history[idx].marketData, history[idx-1].marketData)
+    && _.isEqual(history[idx].marketData, history[idx-2].marketData)) {
         console.log('marketData is stale... exiting.');
         process.exit(0);
-    }
+  }
+
+  fs.writeFile('../temp.log', JSON.stringify(history, null, 2), (er) => {
+    if (er) { console.log(er); }
+  });
 
   zlib.deflate(JSON.stringify(history), (err, buffer) => {
     if (!err) {
@@ -230,10 +239,9 @@ setInterval( () => {
 var formatUserData = function(user) {
   let data = users[user];
   let strategies = {};
-  Object.keys(data.strategies).forEach( (val) => {
-    strategies[val] = data.strategies[val].data;
+  Object.keys(data.account.strategies).forEach( (val) => {
+    strategies[val] = data.account.strategies[val].data;
   });
-
   let res = {
     timestamp: new Date().getTime(),
     msgType:    'user_update',

@@ -1,6 +1,4 @@
-
-
-
+'use strict'
 
 class Pair {
   constructor(name, trades, poloPush) {

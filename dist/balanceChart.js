@@ -41,6 +41,8 @@ ws.onopen = () => {
   }));
 }
 
+
+
 ws.onmessage = (data) => {
   let msg = JSON.parse(data.data);
   if (msg.msgType == 'user_update') {
@@ -64,6 +66,8 @@ Highcharts.setOptions({
 var myChart;
 /* fed an array of series objects */
 var createChart = function(series) {
+  let yAxis;
+
   myChart = Highcharts.stockChart('container', {
     title: {
       text: 'Coin Balances'
@@ -76,7 +80,7 @@ var createChart = function(series) {
     tooltip: {
       shared: false
     },
-    yAxis: balChartOptions[user].yAxis,
+    yAxis: balChartOptions[user] ? balChartOptions[user].yAxis : balChartOptions.default.yAxis,
     rangeSelector: {
       buttons: [{
         count: 1,
@@ -109,6 +113,9 @@ var createChart = function(series) {
 
 /* takes a msg and updates the bals object also adds new series */
 var parseChartDatum = function(row, isHistorical) {
+
+  if (!row.balances) return;
+
   if (Object.keys(row.balances).length === 0) {
     console.log('empty timestamp... no balances to parse');
     return;
@@ -116,7 +123,6 @@ var parseChartDatum = function(row, isHistorical) {
 
   let bs = row.balances
   let md = {};
-  console.log(row.marketData);
   row.marketData.forEach( (pair) => {
     md[pair[0]] = {
       currencyPair: pair[0],
@@ -157,7 +163,7 @@ var parseChartDatum = function(row, isHistorical) {
 
   /* loop through each known coin and populate balances */
   coinslist.forEach( (k) => {
-    let bal = 0
+    let bal = 0;
     try {
       bal = parseFloat(bs[k]['onOrders']) + parseFloat(bs[k]['available']);
     } catch(e) {
@@ -211,6 +217,8 @@ var parseChartDatum = function(row, isHistorical) {
     }
   });
 }
+
+
 var hist;
 var parseHistory = function(res) {
   coinslist = [];
