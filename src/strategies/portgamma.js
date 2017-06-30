@@ -5,7 +5,7 @@ var _ = require('lodash');
 var crypto = require('crypto');
 var fs = require('fs');
 
-var init = require('./portgamma_init');
+// var init = require('./portgamma_init');
 
 
 var Pair = require('./../pair');
