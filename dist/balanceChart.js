@@ -126,7 +126,7 @@ var parseChartDatum = function(row, isHistorical) {
   row.marketData.forEach( (pair) => {
     md[pair[0]] = {
       currencyPair: pair[0],
-      last: pair[0]=='BTC_EMC2' ? 0.00002774 : pair[1],
+      last: pair[1],
       lowestAsk: pair[2],
       highestBid: pair[3],
       percentChange: pair[4],
@@ -140,6 +140,20 @@ var parseChartDatum = function(row, isHistorical) {
     marketdata[pair[0]] = pair;
   });
 
+  md['BTC_EMC2'] = {
+    currencyPair: 'BTC_EMC2',
+    last: '0.00002774',
+    lowestAsk: '0.00002774',
+    highestBid: '0.00002774',
+    percentChange: '0',
+    baseVolume: '0',
+    quoteVolume: '0',
+    isFrozen: '1'
+
+  }
+  md['BTC_EMC2']['24hrHigh'] = '0';
+  md['BTC_EMC2']['24hrLow'] = '0';
+
   marketdata['BTC_EMC2'] = [
     "BTC_EMC2",
     "0.00002774",
@@ -148,11 +162,10 @@ var parseChartDatum = function(row, isHistorical) {
     "0",
     "1922.47687677",
     "359690782.13199823",
-    0,
-    "0.00000554",
-    "0.00000522"]
+    1,
+    "0.00002774",
+    "0.00002774"]
 
-  md['BTC_EMC2'] = marketdata['BTC_EMC2'];
 
   /* loop through each coin in account balances */
   Object.keys(bs).forEach( (b) => {
