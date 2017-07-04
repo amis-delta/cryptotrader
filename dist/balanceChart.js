@@ -140,6 +140,17 @@ var parseChartDatum = function(row, isHistorical) {
     marketdata[pair[0]] = pair;
   });
 
+  marketdata['BTC_EMC2'] = [
+    "BTC_EMC2",
+    "0.00002774",
+    "0.00002774",
+    "0.00002774",
+    "0",
+    "1922.47687677",
+    "359690782.13199823",
+    0,
+    "0.00000554",
+    "0.00000522"]
 
   /* loop through each coin in account balances */
   Object.keys(bs).forEach( (b) => {
