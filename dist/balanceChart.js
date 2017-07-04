@@ -126,7 +126,7 @@ var parseChartDatum = function(row, isHistorical) {
   row.marketData.forEach( (pair) => {
     md[pair[0]] = {
       currencyPair: pair[0],
-      last: pair[1],
+      last: pair[0]=='BTC_EMC2' ? 0.00002774 : pair[1],
       lowestAsk: pair[2],
       highestBid: pair[3],
       percentChange: pair[4],
