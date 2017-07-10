@@ -246,7 +246,7 @@ var formatUserData = function(user) {
     timestamp: new Date().getTime(),
     msgType:    'user_update',
     strategies: strategies,
-    trades:     data.account.data.trades,
+    fills:      data.account.data.fills,
     balances:   data.account.data.balances,
     orders:     data.account.data.orders,
     marketData: marketData.raw

@@ -10,7 +10,7 @@ balChartOptions = {
         let ticks = 16;
 
         for (var i = 0; i <= ticks; i++) {
-          positions.push(parseFloat((incr * i).toFixed(1)));
+          positions.push(parseFloat((incr * i).toFixed(2)));
         }
 
         return positions;
