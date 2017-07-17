@@ -70,10 +70,10 @@ class receiver(threading.Thread):
         self.total = self.balances['btc'].sum() * self.balances['last']['USDT']
         self.balances['share'] = self.balances['usd'] / self.total
         
-        for pair in self.msg['trades'].keys():
+        for pair in self.msg['fills'].keys():
             row = [0,0,0,0,0,0,0,0]
             last = 0
-            for t in self.msg['trades'][pair]:
+            for t in self.msg['fills'][pair]:
                 if t['type'] == 'buy':
                     row[1] += 1
                     row[3] += float(t['amount'])

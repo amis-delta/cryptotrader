@@ -68,10 +68,10 @@ var monitorClients = {};
 var wsClients = {};
 
 /* create users from file */
-// Object.keys(userlist).forEach( (u) => {
-//   users[u] = new User(userlist[u], marketData)
-// });
-users['jack'] = new User(userlist['jack'], marketData);
+Object.keys(userlist).forEach( (u) => {
+  users[u] = new User(userlist[u], marketData)
+});
+// users['jack'] = new User(userlist['jack'], marketData);
 
 
 const WebSocket = require('ws');
