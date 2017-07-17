@@ -66,7 +66,7 @@ Highcharts.setOptions({
 var myChart;
 /* fed an array of series objects */
 var createChart = function(series) {
-  console.log('createChart')
+  console.log('createChart');
   let yAxis;
 
   myChart = Highcharts.stockChart('container', {
@@ -257,10 +257,10 @@ var parseHistory = function(res) {
       if (series[i].length >= maxPoints) {
         series[i].shift();
       }
-      series[i].data.push([
-        row.timestamp,
-        balances[coinslist.indexOf(k)][balKeys.usd]
-      ]);
+      series[i].data.push({
+        x: row.timestamp,
+        y: balances[coinslist.indexOf(k)][balKeys.usd]
+      });
     });
   });
   createChart(series);
@@ -277,10 +277,10 @@ var startInterval = function() {
     if (count >= 11) {
       coinslist.forEach( (k, i) => {
         const b = balances[i][balKeys.usd];
-        myChart.series[i].addPoint([
-          ts,
-          b
-        ], false, false, false);
+        myChart.series[i].addPoint({
+          x: ts,
+          y: b
+        }, false, false, false);
       });
 
       count = 0;
