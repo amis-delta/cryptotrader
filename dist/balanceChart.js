@@ -295,7 +295,7 @@ var startInterval = function() {
             b
           , false, false)
         } catch(e) {
-          console.log('Cannot update:', key, 'with balance:', b);
+          console.log('Cannot update:', i, 'with balance:', b);
         }
       });
       count = count + 1;
