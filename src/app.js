@@ -215,8 +215,8 @@ setInterval( () => {
   let idx = history.length - 1;
   let curTime = new Date().getTime();
   if (curTime > minimumUpTime
-    && _.isEqual(history[idx].marketData, history[idx-1].marketData)
-    && _.isEqual(history[idx].marketData, history[idx-2].marketData)) {
+    && _.isEqual(history[idx].marketData, history[idx-1].marketData)) {
+    // && _.isEqual(history[idx].marketData, history[idx-2].marketData)) {
         console.log('marketData is stale... exiting.');
         process.exit(0);
   }
@@ -233,7 +233,7 @@ setInterval( () => {
     }
   });
 
-}, 60000);
+}, 5 * 60000);
 
 
 var formatUserData = function(user) {

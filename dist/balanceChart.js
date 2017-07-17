@@ -264,16 +264,18 @@ var parseHistory = function(res) {
     });
   });
   createChart(series);
-
 }
 
 
 var count = 0;
+/* countLimit is how many updates in an interval */
+var countLimit = 59; //5 minutes per bar
 var startInterval = function() {
   setInterval( () => {
     const ts = new Date().getTime();
     document.getElementById("total").innerHTML = "Total PL: $" + total['usd'];
 
+    /* count is how many updates in an interval */
     if (count >= 11) {
       coinslist.forEach( (k, i) => {
         const b = balances[i][balKeys.usd];
