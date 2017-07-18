@@ -217,7 +217,7 @@ var parseChartDatum = function(row, isHistorical) {
       // bals.usd[k] = bal * rate;
     } else {
       try {
-        const last = ((parseFloat(md['BTC_' + k]['lowestAsk']) + parseFloat(md['BTC_' + k]['highestBid'])) / 2);
+        const last = ((parseFloat(md['BTC_' + k]['lowestAsk']) + parseFloat(md['BTC_' + k]['highestBid'])) / 2) || 0;
         balances[coinslist.indexOf(k)][balKeys.coin] = k;
         balances[coinslist.indexOf(k)][balKeys.btc] = bal * last;
         balances[coinslist.indexOf(k)][balKeys.usd] = balances[coinslist.indexOf(k)][balKeys.btc] * rate;
