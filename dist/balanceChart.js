@@ -216,21 +216,20 @@ var parseChartDatum = function(row, isHistorical) {
       // bals.btc[k] = bal;
       // bals.usd[k] = bal * rate;
     } else {
+      let last = 0
       try {
-        const last = ((parseFloat(md['BTC_' + k]['lowestAsk']) + parseFloat(md['BTC_' + k]['highestBid'])) / 2) || 0;
-        balances[coinslist.indexOf(k)][balKeys.coin] = k;
-        balances[coinslist.indexOf(k)][balKeys.btc] = bal * last;
-        balances[coinslist.indexOf(k)][balKeys.usd] = balances[coinslist.indexOf(k)][balKeys.btc] * rate;
-        balances[coinslist.indexOf(k)][balKeys.balance] = bal;
-        balances[coinslist.indexOf(k)][balKeys.available] = parseFloat(bs[k]['available']);
-        balances[coinslist.indexOf(k)][balKeys.onOrder] = parseFloat(bs[k]['onOrders']);
-
-        // bals.btc[k] = bal  * ((parseFloat(md['BTC_' + k]['lowestAsk']) + parseFloat(md['BTC_' + k]['highestBid'])) / 2);
-        // bals.usd[k] = bals.btc[k] * rate;
+        last = ((parseFloat(md['BTC_' + k]['lowestAsk']) + parseFloat(md['BTC_' + k]['highestBid'])) / 2);
       } catch (e) {
         console.log('No market data available for:', k);
       }
+      balances[coinslist.indexOf(k)][balKeys.coin] = k;
+      balances[coinslist.indexOf(k)][balKeys.btc] = bal * last;
+      balances[coinslist.indexOf(k)][balKeys.usd] = balances[coinslist.indexOf(k)][balKeys.btc] * rate;
+      balances[coinslist.indexOf(k)][balKeys.balance] = bal;
+      balances[coinslist.indexOf(k)][balKeys.available] = parseFloat(bs[k]['available']);
+      balances[coinslist.indexOf(k)][balKeys.onOrder] = parseFloat(bs[k]['onOrders']);
     }
+
     total['btcs'] += balances[coinslist.indexOf(k)][balKeys.btc];
     total['usd'] += balances[coinslist.indexOf(k)][balKeys.usd];
   });
