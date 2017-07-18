@@ -276,9 +276,9 @@ var startInterval = function() {
     document.getElementById("total").innerHTML = "Total PL: $" + total['usd'];
 
     /* count is how many updates in an interval */
-    if (count >= 11) {
+    if (count >= countLimit) {
       coinslist.forEach( (k, i) => {
-        const b = balances[i][balKeys.usd];
+        const b = balances[i][balKeys.usd] || 0;
         myChart.series[i].addPoint({
           x: ts,
           y: b
@@ -289,13 +289,13 @@ var startInterval = function() {
 
     } else {
       coinslist.forEach( (k, i) => {
-        const b = balances[i][balKeys.usd];
+        const b = balances[i][balKeys.usd] || 0;
         try {
           myChart.series[i].data[myChart.series[i].data.length-1].update(
             b
           , false, false)
         } catch(e) {
-          console.log('Cannot update:', i, 'with balance:', b);
+          console.log('Cannot update:', k, 'with balance:', b);
         }
       });
       count = count + 1;
