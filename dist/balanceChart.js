@@ -88,17 +88,17 @@ var createChart = function(series) {
         type: 'hour',
         text: '1H'
       }, {
-        count: 2,
-        type: 'hour',
-        text: '2H'
-      }, {
         count: 4,
         type: 'hour',
         text: '4H'
       }, {
-        count: 8,
+        count: 12,
         type: 'hour',
-        text: '8H'
+        text: '12H'
+      }, {
+        count: 24,
+        type: 'hour',
+        text: '24H'
       }, {
         type: 'all',
         text: 'All'
