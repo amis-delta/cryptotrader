@@ -141,31 +141,31 @@ var parseChartDatum = function(row, isHistorical) {
     marketdata[pair[0]] = pair;
   });
 
-  md['BTC_EMC2'] = {
-    currencyPair: 'BTC_EMC2',
-    last: '0.00002774',
-    lowestAsk: '0.00002774',
-    highestBid: '0.00002774',
-    percentChange: '0',
-    baseVolume: '0',
-    quoteVolume: '0',
-    isFrozen: '1'
-
-  }
-  md['BTC_EMC2']['24hrHigh'] = '0';
-  md['BTC_EMC2']['24hrLow'] = '0';
-
-  marketdata['BTC_EMC2'] = [
-    "BTC_EMC2",
-    "0.00002774",
-    "0.00002774",
-    "0.00002774",
-    "0",
-    "1922.47687677",
-    "359690782.13199823",
-    1,
-    "0.00002774",
-    "0.00002774"]
+  // md['BTC_EMC2'] = {
+  //   currencyPair: 'BTC_EMC2',
+  //   last: '0.00002774',
+  //   lowestAsk: '0.00002774',
+  //   highestBid: '0.00002774',
+  //   percentChange: '0',
+  //   baseVolume: '0',
+  //   quoteVolume: '0',
+  //   isFrozen: '1'
+  //
+  // }
+  // md['BTC_EMC2']['24hrHigh'] = '0';
+  // md['BTC_EMC2']['24hrLow'] = '0';
+  //
+  // marketdata['BTC_EMC2'] = [
+  //   "BTC_EMC2",
+  //   "0.00002774",
+  //   "0.00002774",
+  //   "0.00002774",
+  //   "0",
+  //   "1922.47687677",
+  //   "359690782.13199823",
+  //   1,
+  //   "0.00002774",
+  //   "0.00002774"]
 
 
   /* loop through each coin in account balances */
