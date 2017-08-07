@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-import poloniex
 """
 Created on Thu Apr 27 13:38:40 2017
 

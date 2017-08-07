@@ -2,6 +2,8 @@ users.js
 /node_modules/*
 !node_modules/poloniex-unofficial
 poloniex.py
+poloniex_trader.py
+poloniex_trader.pyc
 sandbox.js
 *.log
 connection.js
