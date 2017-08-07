@@ -7,6 +7,5 @@ poloniex_trader.pyc
 sandbox.js
 *.log
 connection.js
-depositHistory.csv
 portgamma_init.js
 chartist.js
